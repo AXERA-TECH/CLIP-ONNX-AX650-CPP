@@ -12,7 +12,7 @@ endif()
 
 # bsp
 if(NOT BSP_MSP_DIR)
-    set(BSP_MSP_DIR ${CMAKE_SOURCE_DIR}/axpi_bsp_sdk/msp/out)
+    set(BSP_MSP_DIR ${CMAKE_SOURCE_DIR}/axpi_pro_bsp_sdk/msp/out)
 endif()
 
 message(STATUS "BSP_MSP_DIR = ${BSP_MSP_DIR}")
@@ -47,8 +47,8 @@ message(STATUS "OPENCV_DIR Path: ${OpenCV_DIR}")
 find_package(OpenCV REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(axpi_pro_bsp_sdk/msp/out/include)
-link_directories(axpi_pro_bsp_sdk/msp/out/lib)
+include_directories(${BSP_MSP_DIR}/include)
+link_directories(${BSP_MSP_DIR}/lib)
 
 option(BUILD_WITH_AX650 "build with ax650" OFF)
 
@@ -71,7 +71,7 @@ target_link_libraries(main ${OpenCV_LIBS})
 target_link_libraries(main gomp ${ONNXRUNTIME_LIB})
 
 if(BUILD_WITH_AX650)
-    target_link_libraries(main ax_engine ax_interpreter ax_sys ax_ivps)
+    target_link_libraries(main ax_engine ax_interpreter ax_sys)
 endif()
 
 install(TARGETS main DESTINATION bin)
