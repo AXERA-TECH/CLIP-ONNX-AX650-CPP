@@ -1,5 +1,4 @@
-#include "Runner/CLIPAX650.hpp"
-#include "Runner/CLIPOnnx.hpp"
+#include "Runner/CLIP.hpp"
 
 #include "string_utility.hpp"
 #include "cmdline.hpp"
@@ -135,22 +134,13 @@ int main(int argc, char *argv[])
     text_encoder_model_path = cmd.get<std::string>("tenc");
     language = cmd.get<int>("language");
 
-    std::shared_ptr<CLIP> mClip;
-    if (string_utility<std::string>::ends_with(image_encoder_model_path, ".onnx"))
+    std::shared_ptr<CLIP> mClip = std::make_shared<CLIP>();
+
+    if (!mClip->load_image_encoder(image_encoder_model_path))
     {
-        mClip.reset(new CLIPOnnx);
-    }
-    else if (string_utility<std::string>::ends_with(image_encoder_model_path, ".axmodel"))
-    {
-        mClip.reset(new CLIPAX650);
-    }
-    else
-    {
-        fprintf(stderr, "no impl for %s\n", image_encoder_model_path.c_str());
+        ALOGE("load image encoder failed");
         return -1;
     }
-
-    mClip->load_image_encoder(image_encoder_model_path);
     if (!text_encoder_model_path.empty())
     {
         mClip->load_text_encoder(text_encoder_model_path);
@@ -161,7 +151,7 @@ int main(int argc, char *argv[])
         ALOGI("and make sure the '.bin' file exist\n");
     }
 
-    if(!mClip->load_tokenizer(vocab_path, language == 1))
+    if (!mClip->load_tokenizer(vocab_path, language == 1))
     {
         ALOGE("load tonkenizer failed");
         return -1;

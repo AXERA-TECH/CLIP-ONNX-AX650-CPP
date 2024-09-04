@@ -353,6 +353,16 @@ ax_color_space_e ax_runner_ax650::get_color_space()
     }
 }
 
+int ax_runner_ax650::mem_sync_input(int idx)
+{
+    return AX_SYS_MinvalidateCache(minput_tensors[idx].phyAddr, minput_tensors[idx].pVirAddr, minput_tensors[idx].nSize);
+}
+
+int ax_runner_ax650::mem_sync_output(int idx)
+{
+    return AX_SYS_MinvalidateCache(mtensors[idx].phyAddr, mtensors[idx].pVirAddr, mtensors[idx].nSize);
+}
+
 int ax_runner_ax650::inference(ax_image_t *pstFrame)
 {
     unsigned char *dst = (unsigned char *)minput_tensors[0].pVirAddr;
