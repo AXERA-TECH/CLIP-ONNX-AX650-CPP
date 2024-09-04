@@ -9,6 +9,7 @@
 #include "sample_log.h"
 
 #include "CLIPTextEncoder.hpp"
+#include "CLIPTextEncoderAX650.hpp"
 #include "CLIPImageEncoder.hpp"
 #include "CLIPImageEncoderAX650.hpp"
 
@@ -138,6 +139,10 @@ public:
             if (string_utility<std::string>::ends_with(encoder_path, ".onnx"))
             {
                 m_text_encoder.reset(new CLIPTextEncoderOnnx);
+            }
+            else if (string_utility<std::string>::ends_with(encoder_path, ".axmodel"))
+            {
+                m_text_encoder.reset(new CLIPTextEncoderAX650);
             }
             else
             {

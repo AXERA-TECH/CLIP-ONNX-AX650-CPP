@@ -2,7 +2,7 @@
 #include "CLIPTextEncoder.hpp"
 #include "ax_model_runner_ax650.hpp"
 
-class CLIPImageEncoderAX650 : public CLIPTextEncoder
+class CLIPTextEncoderAX650 : public CLIPTextEncoder
 {
 private:
     std::shared_ptr<ax_runner_base> m_encoder;

@@ -266,29 +266,31 @@ int ax_runner_ax650::init(const char *model_file)
     }
     fprintf(stdout, "Engine alloc io is done. \n");
 
-    m_handle->algo_width = m_handle->io_info->pInputs[0].pShape[2];
-
     switch (m_handle->io_info->pInputs[0].pExtraMeta->eColorSpace)
     {
     case AX_ENGINE_CS_NV12:
+        m_handle->algo_width = m_handle->io_info->pInputs[0].pShape[2];
         m_handle->algo_colorformat = (int)AX_FORMAT_YUV420_SEMIPLANAR;
         m_handle->algo_height = m_handle->io_info->pInputs[0].pShape[1] / 1.5;
         ALOGI("NV12 MODEL");
         break;
     case AX_ENGINE_CS_RGB:
+        m_handle->algo_width = m_handle->io_info->pInputs[0].pShape[2];
         m_handle->algo_colorformat = (int)AX_FORMAT_RGB888;
         m_handle->algo_height = m_handle->io_info->pInputs[0].pShape[1];
         ALOGI("RGB MODEL");
         break;
     case AX_ENGINE_CS_BGR:
+        m_handle->algo_width = m_handle->io_info->pInputs[0].pShape[2];
         m_handle->algo_colorformat = (int)AX_FORMAT_BGR888;
         m_handle->algo_height = m_handle->io_info->pInputs[0].pShape[1];
         ALOGI("BGR MODEL");
         break;
     default:
-        ALOGE("now ax-pipeline just only support NV12/RGB/BGR input format,you can modify by yourself");
-        // return deinit_joint();
-        return -1;
+        ALOGW("unknown model color format");
+        // ALOGE("now ax-pipeline just only support NV12/RGB/BGR input format,you can modify by yourself");
+        // // return deinit_joint();
+        // return -1;
     }
 
     for (size_t i = 0; i < m_handle->io_info->nOutputSize; i++)
