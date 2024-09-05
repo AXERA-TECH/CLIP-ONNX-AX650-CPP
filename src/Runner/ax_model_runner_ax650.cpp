@@ -423,4 +423,14 @@ int ax_runner_ax650::inference()
 {
     return -1;
 }
+
+int ax_runner_ax650::mem_sync_input(int idx)
+{
+    return 0;
+}
+
+int ax_runner_ax650::mem_sync_output(int idx)
+{
+    return 0;
+}
 #endif // BUILD_WITH_AX650
