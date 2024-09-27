@@ -1,8 +1,9 @@
 #pragma once
-#include "CLIP.hpp"
+#include "CLIPImageEncoder.hpp"
 #include "ax_model_runner_ax650.hpp"
 
-class CLIPAX650 : public CLIP
+
+class CLIPImageEncoderAX650 : public CLIPImageEncoder
 {
 private:
     std::shared_ptr<ax_runner_base> m_encoder;
@@ -23,18 +24,20 @@ public:
         image_features_input = std::vector<float>(1024 * LEN_IMAGE_FEATURE);
         return true;
     }
-    void encode(cv::Mat image, std::vector<float> &image_features) override
+    bool encode(cv::Mat image, std::vector<float> &image_features) override
     {
         if (!m_encoder.get())
         {
             ALOGE("encoder not init");
-            return;
+            return false;
         }
         cv::resize(image, input, cv::Size(input_width, input_height));
         cv::cvtColor(input, input, cv::COLOR_BGR2RGB);
         auto ret = m_encoder->inference();
 
         image_features.resize(LEN_IMAGE_FEATURE);
+        m_encoder->mem_sync_output(0);
         memcpy(image_features.data(), m_encoder->get_output(0).pVirAddr, LEN_IMAGE_FEATURE * sizeof(float));
+        return true;
     }
 };

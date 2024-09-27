@@ -54,6 +54,9 @@ public:
     const ax_runner_tensor_t &get_output(int idx) { return mtensors[idx]; }
     const ax_runner_tensor_t *get_outputs_ptr() { return mtensors.data(); }
 
+    virtual int mem_sync_input(int idx) { return 0; }
+    virtual int mem_sync_output(int idx) { return 0; }
+
     virtual int get_algo_width() = 0;
     virtual int get_algo_height() = 0;
     virtual ax_color_space_e get_color_space() = 0;
@@ -64,5 +67,10 @@ public:
     int operator()(ax_image_t *pstFrame)
     {
         return inference(pstFrame);
+    }
+
+    int operator()()
+    {
+        return inference();
     }
 };

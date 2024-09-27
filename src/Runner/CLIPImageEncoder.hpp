@@ -1,8 +1,30 @@
 #pragma once
-#include "CLIP.hpp"
+#include <opencv2/opencv.hpp>
 #include "BaseRunner.hpp"
+#include "sample_log.h"
 
-class CLIPOnnx : public CLIP
+class CLIPImageEncoder
+{
+protected:
+    float _mean_val[3] = {0.48145466f * 255.f, 0.4578275f * 255.f, 0.40821073f * 255.f};
+    float _std_val[3] = {1 / (0.26862954f * 255.f), 1 / (0.26130258f * 255.f), 1 / (0.27577711f * 255.f)};
+
+    std::vector<float> image_features_input;
+
+    int LEN_IMAGE_FEATURE = 512;
+    int input_height, input_width;
+
+public:
+    virtual bool load_image_encoder(std::string encoder_path) = 0;
+    virtual bool encode(cv::Mat image, std::vector<float> &image_features) = 0;
+
+    int get_image_feature_size()
+    {
+        return LEN_IMAGE_FEATURE;
+    }
+};
+
+class CLIPImageEncoderOnnx : public CLIPImageEncoder
 {
 private:
     std::shared_ptr<BaseRunner> m_encoder;
@@ -26,12 +48,12 @@ public:
         image_features_input = std::vector<float>(1024 * LEN_IMAGE_FEATURE);
         return true;
     }
-    void encode(cv::Mat image, std::vector<float> &image_features) override
+    bool encode(cv::Mat image, std::vector<float> &image_features) override
     {
         if (!m_encoder.get())
         {
             ALOGE("encoder not init");
-            return;
+            return false;
         }
         cv::resize(image, input, cv::Size(input_width, input_height));
         cv::cvtColor(input, input, cv::COLOR_BGR2RGB);
@@ -59,5 +81,7 @@ public:
 
         image_features.resize(LEN_IMAGE_FEATURE);
         memcpy(image_features.data(), m_encoder->getOutputPtr(0), LEN_IMAGE_FEATURE * sizeof(float));
+
+        return true;
     }
 };
