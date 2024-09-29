@@ -90,6 +90,8 @@ if(BUILD_WITH_AX620E)
 elseif(BUILD_WITH_AX650)
     target_link_libraries(main ${ONNXRUNTIME_LIB})
     target_link_libraries(main ax_engine ax_interpreter ax_sys)
+else()
+    target_link_libraries(main ${ONNXRUNTIME_LIB})
 endif()
 
 install(TARGETS main DESTINATION bin)
