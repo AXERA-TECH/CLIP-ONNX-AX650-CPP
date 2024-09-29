@@ -1,7 +1,7 @@
 #!/bin/bash
 
 build_chip=$1  # ax650 ax630c ax620q
-BSP_MSP_DIR=$PWD/ax20e_bsp/ax620e_arm32/msp/out
+BSP_MSP_DIR=/home/arno/workspace/projects/third-party/ax620e_arm32/msp/out/arm64_glibc
 
 
 if [ "${build_chip}" = "ax630c" ] || [ "${build_chip}" = "ax650" ] 
@@ -87,14 +87,23 @@ then
         BSP_MSP_DIR=$BSP_MSP_DIR/arm64_glibc
     fi
     echo "bsp dir: ${BSP_MSP_DIR}"
-
-    cmake -DBSP_MSP_DIR=${BSP_MSP_DIR} \
-    -DCMAKE_TOOLCHAIN_FILE=../toolchains/aarch64-none-linux-gnu.toolchain.cmake \
-    -DBUILD_WITH_AX650=ON \
-    -DONNXRUNTIME_DIR=$PWD/onnxruntime-aarch64-none-gnu-1.16.0 \
-    -DOpenCV_DIR=$PWD/libopencv-4.5.5-aarch64/lib/cmake/opencv4 \
-    -DCMAKE_BUILD_TYPE=Release \
-    ..
+    if [ "${build_chip}" = "ax630c" ]; then
+        cmake -DBSP_MSP_DIR=${BSP_MSP_DIR} \
+        -DCMAKE_TOOLCHAIN_FILE=../toolchains/aarch64-none-linux-gnu.toolchain.cmake \
+        -DBUILD_WITH_AX620E=ON \
+        -DONNXRUNTIME_DIR=$PWD/onnxruntime-aarch64-none-gnu-1.16.0 \
+        -DOpenCV_DIR=$PWD/libopencv-4.5.5-aarch64/lib/cmake/opencv4 \
+        -DCMAKE_BUILD_TYPE=Release \
+        ..
+    else
+        cmake -DBSP_MSP_DIR=${BSP_MSP_DIR} \
+        -DCMAKE_TOOLCHAIN_FILE=../toolchains/aarch64-none-linux-gnu.toolchain.cmake \
+        -DBUILD_WITH_AX650=ON \
+        -DONNXRUNTIME_DIR=$PWD/onnxruntime-aarch64-none-gnu-1.16.0 \
+        -DOpenCV_DIR=$PWD/libopencv-4.5.5-aarch64/lib/cmake/opencv4 \
+        -DCMAKE_BUILD_TYPE=Release \
+        ..
+    fi
 
     make -j16
     make install
