@@ -83,12 +83,12 @@ add_executable(main src/main.cpp)
 
 target_link_libraries(main clip)
 
-target_link_libraries(main ${OpenCV_LIBS})
+target_link_libraries(main ${OpenCV_LIBS} gomp)
 
 if(BUILD_WITH_AX620E)
     target_link_libraries(main ax_engine ax_interpreter ax_sys)
 elseif(BUILD_WITH_AX650)
-    target_link_libraries(main gomp ${ONNXRUNTIME_LIB})
+    target_link_libraries(main ${ONNXRUNTIME_LIB})
     target_link_libraries(main ax_engine ax_interpreter ax_sys)
 endif()
 

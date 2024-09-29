@@ -11,8 +11,8 @@
 #include "CLIPTextEncoderAX650.hpp"
 #include "CLIPImageEncoderAX650.hpp"
 #ifndef AXERA_TARGET_CHIP_AX620E
-#include "CLIPTextEncoder.hpp"
-#include "CLIPImageEncoder.hpp"
+#include "CLIPTextEncoderOnnx.hpp"
+#include "CLIPImageEncoderOnnx.hpp"
 #endif
 
 class CLIP
