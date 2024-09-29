@@ -1,7 +1,33 @@
 #!/bin/bash
 
 build_chip=$1  # ax650 ax630c ax620q
-BSP_MSP_DIR=/home/arno/workspace/projects/third-party/ax620e_arm32/msp/out/arm64_glibc
+BSP_MSP_DIR=$PWD/ax_bsp_sdk/msp/out/arm64_glibc
+
+# 判断 $BSP_MSP_DIR/lib/libax_sys.so 是否存在
+if [ ! -f "$BSP_MSP_DIR/lib/libax_sys.so" ]; then
+    echo "Error: $BSP_MSP_DIR/lib/libax_sys.so does not exist, this is not a valid BSP directory"
+    echo "Please set BSP_MSP_DIR to the correct directory look like 
+            .
+            |── include
+            │   ├── ax_engine_api.h
+            │   ├── ax_engine_type.h
+            │   ├── ax_ivps_api.h
+            │   ├── ax_ivps_type.h
+            │   ├── ax_sys_api.h
+            │   ├── ax_sys_log.h
+            └── lib
+                ├── libax_engine.a
+                ├── libax_engine.so
+                ├── libax_engine_tiny.a
+                ├── libax_engine_tiny.so
+                ├── libax_interpreter.a
+                ├── libax_interpreter.so
+                ├── libax_ivps.a
+                ├── libax_ivps.so
+                ├── libax_sys.a
+                └── libax_sys.so"
+    exit 1
+fi
 
 
 if [ "${build_chip}" = "ax630c" ] || [ "${build_chip}" = "ax650" ] 
