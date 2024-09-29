@@ -23,12 +23,9 @@ project(CLIP-ONNX-AX650-CPP)
 
 # 添加 FLAGS 检查代码是否有明显 bug
 # include(cmake/overlook.cmake)
-
 add_compile_options(-std=c++17)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-
 
 # link third-party library onnxruntime-win-x64-1.14.1 and opencv4
 if(NOT ONNXRUNTIME_DIR)
@@ -61,7 +58,6 @@ if(BUILD_WITH_AX620E)
     add_compile_definitions(AXERA_TARGET_CHIP_AX620E)
 endif()
 
-
 if(BUILD_WITH_AX650)
     set(AXERA_TARGET_CHIP "AX650")
     add_compile_definitions(BUILD_WITH_AX650)
@@ -72,19 +68,27 @@ message(STATUS "BUILD_WITH_AX650 : ${BUILD_WITH_AX650}")
 message(STATUS "BUILD_WITH_AX620E : ${BUILD_WITH_AX620E}")
 message(STATUS "BUILD_VIDEO_DEMO : ${BUILD_VIDEO_DEMO}")
 
-add_library(clip STATIC
-    src/Runner/BaseRunner.cpp
-    src/Runner/ax_model_runner_ax650.cpp
-)
+if(BUILD_WITH_AX620E)
+    add_library(clip STATIC
+        src/Runner/ax_model_runner_ax650.cpp
+    )
+else()
+    add_library(clip STATIC
+        src/Runner/BaseRunner.cpp
+        src/Runner/ax_model_runner_ax650.cpp
+    )
+endif()
 
 add_executable(main src/main.cpp)
 
 target_link_libraries(main clip)
 
 target_link_libraries(main ${OpenCV_LIBS})
-target_link_libraries(main gomp ${ONNXRUNTIME_LIB})
 
-if(BUILD_WITH_AX650)
+if(BUILD_WITH_AX620E)
+    target_link_libraries(main ax_engine ax_interpreter ax_sys)
+elseif(BUILD_WITH_AX650)
+    target_link_libraries(main gomp ${ONNXRUNTIME_LIB})
     target_link_libraries(main ax_engine ax_interpreter ax_sys)
 endif()
 
@@ -92,7 +96,7 @@ install(TARGETS main DESTINATION bin)
 
 if(BUILD_WITH_AX650 AND BUILD_VIDEO_DEMO)
     add_subdirectory(ax-pipeline/third-party/RTSP)
-    add_subdirectory(ax-pipeline/third-party/RtspServer)    
+    add_subdirectory(ax-pipeline/third-party/RtspServer)
     add_subdirectory(ax-pipeline/third-party/mp4demux)
     add_subdirectory(ax-pipeline/examples/common/common_pipeline)
     add_executable(main_video src/main_video.cpp ax-pipeline/examples/utilities/net_utils.c ${BSP_MSP_DIR}/../sample/common/common_sys.c)

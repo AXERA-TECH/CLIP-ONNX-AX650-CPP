@@ -164,7 +164,7 @@ then
 
     cmake -DBSP_MSP_DIR=${BSP_MSP_DIR} \
     -DCMAKE_TOOLCHAIN_FILE=../toolchains/arm-AX620E-linux-uclibcgnueabihf.cmake \
-    -DBUILD_WITH_AX650=ON \
+    -DBUILD_WITH_AX620E=ON \
     -DOpenCV_DIR=$PWD/opencv-arm-uclibc-linux/lib/cmake/opencv4 \
     -DCMAKE_BUILD_TYPE=Release \
     ..
