@@ -7,8 +7,6 @@ enum RunnerType
 {
     RT_UNKNOWN,
     RT_OnnxRunner,
-    RT_OpenvinoRunner,
-    RT_TensorrtRunner,
     RT_END,
 };
 

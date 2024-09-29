@@ -8,10 +8,12 @@
 #include "../string_utility.hpp"
 #include "sample_log.h"
 
-#include "CLIPTextEncoder.hpp"
 #include "CLIPTextEncoderAX650.hpp"
-#include "CLIPImageEncoder.hpp"
 #include "CLIPImageEncoderAX650.hpp"
+#ifndef AXERA_TARGET_CHIP_AX620E
+#include "CLIPTextEncoder.hpp"
+#include "CLIPImageEncoder.hpp"
+#endif
 
 class CLIP
 {
@@ -138,7 +140,11 @@ public:
         {
             if (string_utility<std::string>::ends_with(encoder_path, ".onnx"))
             {
+#ifndef AXERA_TARGET_CHIP_AX620E
                 m_text_encoder.reset(new CLIPTextEncoderOnnx);
+#else
+                ALOGE("AX620E don't support onnx model");
+#endif
             }
             else if (string_utility<std::string>::ends_with(encoder_path, ".axmodel"))
             {
@@ -159,7 +165,11 @@ public:
         {
             if (string_utility<std::string>::ends_with(encoder_path, ".onnx"))
             {
+#ifndef AXERA_TARGET_CHIP_AX620E
                 m_image_encoder.reset(new CLIPImageEncoderOnnx);
+#else
+                ALOGE("AX620E don't support onnx model");
+#endif
             }
             else if (string_utility<std::string>::ends_with(encoder_path, ".axmodel"))
             {

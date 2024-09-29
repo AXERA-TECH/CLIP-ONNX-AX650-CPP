@@ -205,7 +205,10 @@ int ax_runner_ax650::init(const char *model_file)
     // 1. init engine
 #ifdef AXERA_TARGET_CHIP_AX620E
     AX_SYS_Init();
-    auto ret = AX_ENGINE_Init();
+    AX_ENGINE_NPU_ATTR_T npu_attr;
+    memset(&npu_attr, 0, sizeof(npu_attr));
+    npu_attr.eHardMode = AX_ENGINE_VIRTUAL_NPU_ENABLE;
+    auto ret = AX_ENGINE_Init(&npu_attr);
 #elif defined(AXERA_TARGET_CHIP_AX650)
     AX_SYS_Init();
     AX_ENGINE_NPU_ATTR_T npu_attr;
