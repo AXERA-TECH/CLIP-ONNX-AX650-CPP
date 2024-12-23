@@ -67,9 +67,10 @@ endif()
 target_link_libraries(CLIPQT PRIVATE ${QTWidget})
 
 # # bsp
-# if(NOT BSP_MSP_DIR)
-#     set(BSP_MSP_DIR ${CMAKE_SOURCE_DIR}/../../axpi_pro_bsp_sdk/msp/out)
-# endif()
+if(NOT AXCL_DIR)
+    set(AXCL_DIR ${CMAKE_SOURCE_DIR}/../../axcl/)
+endif()
+message(STATUS "AXCL_DIR Path: ${AXCL_DIR}")
 
 # link third-party library onnxruntime-win-x64-1.14.1 and opencv4
 if(NOT ONNXRUNTIME_DIR)
@@ -90,8 +91,8 @@ message(STATUS "OPENCV_DIR Path: ${OpenCV_DIR}")
 find_package(OpenCV REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(axcl/include)
-link_directories(axcl/lib)
+include_directories(${AXCL_DIR}/include)
+link_directories(${AXCL_DIR}/lib)
 
 
 target_link_libraries(CLIPQT PRIVATE spdlog axcl_pcie_dma axcl_pcie_msg axcl_token axcl_comm axcl_pkg axcl_rt)
