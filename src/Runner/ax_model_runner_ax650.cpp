@@ -375,7 +375,7 @@ int ax_runner_ax650::init(const char *model_file, bool use_mmap)
         size_t len;
         if (!read_file(model_file, &model_buffer, &len))
         {
-            ALOGE("read_file");
+            ALOGE("read_file failed %s", model_file);
             return -1;
         }
         auto ret = init(model_buffer, len);
@@ -395,6 +395,7 @@ int ax_runner_ax650::init(char *model_buffer, size_t model_size)
     static bool b_init = false;
     if (!b_init)
     {
+        axclInit(0);
         // 1. init engine
         // AX_ENGINE_NPU_ATTR_T npu_attr;
         // memset(&npu_attr, 0, sizeof(npu_attr));
@@ -496,8 +497,8 @@ void ax_runner_ax650::deinit()
     // AX_ENGINE_Deinit();
 }
 
-int ax_runner_ax650::get_algo_width() { return -1; }
-int ax_runner_ax650::get_algo_height() { return -1; }
+int ax_runner_ax650::get_algo_width() { return minput_tensors[0].vShape[2]; }
+int ax_runner_ax650::get_algo_height() { return minput_tensors[0].vShape[1]; }
 
 int ax_runner_ax650::set_input(int grpid, int idx, unsigned long long int phy_addr, unsigned long size)
 {
