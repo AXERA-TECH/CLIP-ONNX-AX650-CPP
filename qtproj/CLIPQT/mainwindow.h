@@ -2,8 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "clip/Runner/CLIPAX650.hpp"
-#include "clip/Runner/CLIPOnnx.hpp"
+#include "clip/Runner/CLIP.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui

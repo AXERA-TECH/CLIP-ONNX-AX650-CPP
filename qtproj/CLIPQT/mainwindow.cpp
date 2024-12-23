@@ -18,26 +18,27 @@ MainWindow::MainWindow(
     QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    mClip = std::make_shared<CLIP>();
 
-    if (string_utility<std::string>::ends_with(image_encoder_model_path, ".onnx"))
+    if (!mClip->load_image_encoder(image_encoder_model_path))
     {
-        mClip.reset(new CLIPOnnx);
+        ALOGE("load image encoder failed");
+        exit(-1);
     }
-    else if (string_utility<std::string>::ends_with(image_encoder_model_path, ".axmodel"))
+    if (!text_encoder_model_path.empty())
     {
-        mClip.reset(new CLIPAX650);
+        mClip->load_text_encoder(text_encoder_model_path);
     }
     else
     {
-        fprintf(stderr, "no impl for %s\n", image_encoder_model_path.c_str());
+        // ALOGI("if you dont want to load text encoder, the '--text' args must be set like '--text dog:dog.bin', or set a txt file with content like \n\n%s    dog:dog.bin\n    bird:bird.bin\n    cat:cat.bin\n", MACRO_RED);
+        // ALOGI("and make sure the '.bin' file exist\n");
         exit(-1);
     }
 
-    mClip->load_image_encoder(image_encoder_model_path);
-    mClip->load_text_encoder(text_encoder_model_path);
-//    mClip->load_decoder(decoder_model_path);
-    if(!mClip->load_tokenizer(vocab_path, language == 1))
+    if (!mClip->load_tokenizer(vocab_path, language == 1))
     {
+        ALOGE("load tonkenizer failed");
         exit(-1);
     }
 
@@ -74,11 +75,11 @@ MainWindow::MainWindow(
         std::vector<float> feat(mClip->get_image_feature_size(), 0);
         do
         {
-            if(_file_exist(feat_path))
+            if (_file_exist(feat_path))
             {
                 std::vector<char> tmp;
                 _file_read(feat_path, tmp);
-                if(tmp.size() != (mClip->get_image_feature_size() * 4))
+                if (tmp.size() != (mClip->get_image_feature_size() * 4))
                 {
                     remove_ids.push_back(i);
                     ALOGE("%s not match model %s,please remove it and restart process", feat_path.c_str(), image_encoder_model_path.c_str());
@@ -93,14 +94,14 @@ MainWindow::MainWindow(
                 if (!src.data)
                 {
                     remove_ids.push_back(i);
-                    ALOGE("load image failed, %s",image_path.c_str());
+                    ALOGE("load image failed, %s", image_path.c_str());
                     break;
                 }
                 mClip->encode(src, feat);
-                _file_dump(feat_path, (char*)feat.data(), feat.size()*4);
+                _file_dump(feat_path, (char *)feat.data(), feat.size() * 4);
                 gen_cnt++;
             }
-        } while(false);
+        } while (false);
 
         image_features[i] = feat;
         image_paths[i] = image_path;
@@ -108,10 +109,10 @@ MainWindow::MainWindow(
         update_cqdm(&tqdm, i);
     }
 
-    for(size_t i = 0; i < remove_ids.size(); i++)
+    for (size_t i = 0; i < remove_ids.size(); i++)
     {
         auto idx = remove_ids[remove_ids.size() - i - 1];
-        ALOGI("remove feature for %s",image_paths[idx].c_str());
+        ALOGI("remove feature for %s", image_paths[idx].c_str());
         image_features.erase(image_features.begin() + idx);
         image_paths.erase(image_paths.begin() + idx);
     }
@@ -140,7 +141,7 @@ void MainWindow::add_image_text_label(QString image_path, QString text, int max_
     else
     {
         QImage image(image_path);
-        if(image.bits())
+        if (image.bits())
             image_label->SetImage(image);
         else
             image_label->setText("No image");
@@ -234,7 +235,7 @@ void MainWindow::on_btn_search_clicked()
             }
         }
     }
-    ALOGI("there are %d results score bigger than 0",results.size());
+    ALOGI("there are %d results score bigger than 0", results.size());
     // sort by score
     std::sort(results.begin(), results.end(), [](const path_and_score &a, const path_and_score &b)
               { return a.score > b.score; });
@@ -243,7 +244,7 @@ void MainWindow::on_btn_search_clicked()
     double threshold = 0.01;
     bool isOk = false;
     threshold = ui->txt_threshold->text().toDouble(&isOk);
-    if(!isOk)
+    if (!isOk)
     {
         threshold = 0.01;
     }
