@@ -66,10 +66,10 @@ endif()
 
 target_link_libraries(CLIPQT PRIVATE ${QTWidget})
 
-# bsp
-if(NOT BSP_MSP_DIR)
-    set(BSP_MSP_DIR ${CMAKE_SOURCE_DIR}/../../axpi_pro_bsp_sdk/msp/out)
-endif()
+# # bsp
+# if(NOT BSP_MSP_DIR)
+#     set(BSP_MSP_DIR ${CMAKE_SOURCE_DIR}/../../axpi_pro_bsp_sdk/msp/out)
+# endif()
 
 # link third-party library onnxruntime-win-x64-1.14.1 and opencv4
 if(NOT ONNXRUNTIME_DIR)
@@ -90,20 +90,12 @@ message(STATUS "OPENCV_DIR Path: ${OpenCV_DIR}")
 find_package(OpenCV REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(${BSP_MSP_DIR}/include)
-target_link_directories(CLIPQT PRIVATE ${BSP_MSP_DIR}/lib)
+include_directories(axcl/include)
+link_directories(axcl/lib)
 
-option(BUILD_WITH_AX650 "build with ax650" OFF)
 
-if(BUILD_WITH_AX650)
-    add_compile_definitions(BUILD_WITH_AX650)
-    add_compile_definitions(AXERA_TARGET_CHIP_AX650)
-endif()
+target_link_libraries(CLIPQT PRIVATE spdlog axcl_pcie_dma axcl_pcie_msg axcl_token axcl_comm axcl_pkg axcl_rt)
 
-message(STATUS "BUILD_WITH_AX650 : ${BUILD_WITH_AX650}")
-if(BUILD_WITH_AX650)
-    target_link_libraries(CLIPQT PRIVATE ax_engine ax_interpreter ax_sys)
-endif()
 
 target_link_libraries(CLIPQT PRIVATE ${OpenCV_LIBS})
 target_link_libraries(CLIPQT PRIVATE gomp ${ONNXRUNTIME_LIB})
