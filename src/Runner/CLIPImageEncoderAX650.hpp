@@ -36,7 +36,7 @@ public:
         auto ret = m_encoder->inference();
 
         image_features.resize(LEN_IMAGE_FEATURE);
-        m_encoder->mem_sync_output(0);
+        // m_encoder->mem_sync_output(0);
         memcpy(image_features.data(), m_encoder->get_output(0).pVirAddr, LEN_IMAGE_FEATURE * sizeof(float));
         return true;
     }

@@ -54,7 +54,7 @@ public:
             }
             m_encoder->inference();
             text_features[i].resize(LEN_TEXT_FEATURE);
-            m_encoder->mem_sync_output(0);
+            // m_encoder->mem_sync_output(0);
             memcpy(text_features[i].data(), m_encoder->get_output(0).pVirAddr, LEN_TEXT_FEATURE * sizeof(float));
         }
 

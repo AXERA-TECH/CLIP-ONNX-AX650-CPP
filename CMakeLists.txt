@@ -11,11 +11,11 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # bsp
-if(NOT BSP_MSP_DIR)
-    set(BSP_MSP_DIR ${CMAKE_SOURCE_DIR}/axpi_pro_bsp_sdk/msp/out)
-endif()
+# if(NOT BSP_MSP_DIR)
+#     set(BSP_MSP_DIR ${CMAKE_SOURCE_DIR}/axpi_pro_bsp_sdk/msp/out)
+# endif()
 
-message(STATUS "BSP_MSP_DIR = ${BSP_MSP_DIR}")
+# message(STATUS "BSP_MSP_DIR = ${BSP_MSP_DIR}")
 
 # set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/toolchains/aarch64-none-linux-gnu.toolchain.cmake)
 cmake_minimum_required(VERSION 3.0)
@@ -46,38 +46,18 @@ message(STATUS "OPENCV_DIR Path: ${OpenCV_DIR}")
 find_package(OpenCV REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(${BSP_MSP_DIR}/include)
-link_directories(${BSP_MSP_DIR}/lib)
+# include_directories(${BSP_MSP_DIR}/include)
+# link_directories(${BSP_MSP_DIR}/lib)
+include_directories(axcl/include)
+link_directories(axcl/lib)
 
-option(BUILD_WITH_AX650 "build with ax650" OFF)
-option(BUILD_WITH_AX620E "build with ax620e" OFF)
-option(BUILD_VIDEO_DEMO "build video demo" OFF)
 
-if(BUILD_WITH_AX620E)
-    set(BUILD_WITH_AX650 ON)
-    add_compile_definitions(AXERA_TARGET_CHIP_AX620E)
-endif()
+add_library(clip STATIC
+    src/Runner/BaseRunner.cpp
+    src/Runner/ax_model_runner_ax650.cpp
+    src/Runner/memory_utils.cpp
+)
 
-if(BUILD_WITH_AX650)
-    set(AXERA_TARGET_CHIP "AX650")
-    add_compile_definitions(BUILD_WITH_AX650)
-    add_compile_definitions(AXERA_TARGET_CHIP_AX650)
-endif()
-
-message(STATUS "BUILD_WITH_AX650 : ${BUILD_WITH_AX650}")
-message(STATUS "BUILD_WITH_AX620E : ${BUILD_WITH_AX620E}")
-message(STATUS "BUILD_VIDEO_DEMO : ${BUILD_VIDEO_DEMO}")
-
-if(BUILD_WITH_AX620E)
-    add_library(clip STATIC
-        src/Runner/ax_model_runner_ax650.cpp
-    )
-else()
-    add_library(clip STATIC
-        src/Runner/BaseRunner.cpp
-        src/Runner/ax_model_runner_ax650.cpp
-    )
-endif()
 
 add_executable(main src/main.cpp)
 
@@ -85,38 +65,9 @@ target_link_libraries(main clip)
 
 target_link_libraries(main ${OpenCV_LIBS} gomp)
 
-if(BUILD_WITH_AX620E)
-    target_link_libraries(main ax_engine ax_interpreter ax_sys)
-elseif(BUILD_WITH_AX650)
-    target_link_libraries(main ${ONNXRUNTIME_LIB})
-    target_link_libraries(main ax_engine ax_interpreter ax_sys)
-else()
-    target_link_libraries(main ${ONNXRUNTIME_LIB})
-endif()
+
+target_link_libraries(main ${ONNXRUNTIME_LIB})
+target_link_libraries(main spdlog axcl_pcie_dma axcl_pcie_msg axcl_token axcl_comm axcl_pkg axcl_rt)
+
 
 install(TARGETS main DESTINATION bin)
-
-if(BUILD_WITH_AX650 AND BUILD_VIDEO_DEMO)
-    add_subdirectory(ax-pipeline/third-party/RTSP)
-    add_subdirectory(ax-pipeline/third-party/RtspServer)
-    add_subdirectory(ax-pipeline/third-party/mp4demux)
-    add_subdirectory(ax-pipeline/examples/common/common_pipeline)
-    add_executable(main_video src/main_video.cpp ax-pipeline/examples/utilities/net_utils.c ${BSP_MSP_DIR}/../sample/common/common_sys.c)
-
-    include_directories(${BSP_MSP_DIR}/../sample/common)
-    include_directories(ax-pipeline/third-party/RTSP/include)
-    include_directories(ax-pipeline/third-party/mp4demux)
-
-    target_link_directories(main_video PRIVATE ${BSP_MSP_DIR}/../../third-party/drm/lib)
-    target_link_libraries(main_video PRIVATE drm)
-
-    target_link_libraries(main_video PRIVATE clip common_pipeline)
-
-    target_link_libraries(main_video PRIVATE ${OpenCV_LIBS})
-    target_link_libraries(main_video PRIVATE gomp ${ONNXRUNTIME_LIB})
-
-    target_link_libraries(main_video PRIVATE ax_interpreter ax_sys ax_venc ax_vdec ax_ivps ax_ive ax_engine ax_vo gomp stdc++fs)
-
-    target_link_libraries(main_video PRIVATE RtspServer)
-    target_link_libraries(main_video PRIVATE rtspclisvr Mp4Demuxer)
-endif()
