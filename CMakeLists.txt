@@ -48,9 +48,10 @@ find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 # include_directories(${BSP_MSP_DIR}/include)
 # link_directories(${BSP_MSP_DIR}/lib)
-include_directories(axcl/include)
-link_directories(axcl/lib)
-
+# include_directories(axcl/include)
+# link_directories(axcl/lib)
+include_directories(/usr/include/axcl)
+link_directories(/usr/lib/axcl)
 
 add_library(clip STATIC
     src/Runner/BaseRunner.cpp

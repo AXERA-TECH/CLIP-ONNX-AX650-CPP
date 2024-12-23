@@ -4,6 +4,7 @@
 #include "style/DarkStyle.h"
 
 #include "clip/cmdline.hpp"
+#include "axcl.h"
 
 int main(int argc, char *argv[])
 {
@@ -22,6 +23,8 @@ int main(int argc, char *argv[])
 
     cmd.parse_check(argc, argv);
 
+    axclInit(0);
+
     vocab_path = cmd.get<std::string>("vocab");
     image_encoder_model_path = cmd.get<std::string>("ienc");
     text_encoder_model_path = cmd.get<std::string>("tenc");
@@ -36,5 +39,7 @@ int main(int argc, char *argv[])
                  text_encoder_model_path,
                  language);
     w.show();
-    return a.exec();
+    auto ret = a.exec();
+    axclFinalize();
+    return ret;
 }
