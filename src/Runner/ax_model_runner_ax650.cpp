@@ -395,7 +395,6 @@ int ax_runner_ax650::init(char *model_buffer, size_t model_size)
     static bool b_init = false;
     if (!b_init)
     {
-        axclInit(0);
         // 1. init engine
         // AX_ENGINE_NPU_ATTR_T npu_attr;
         // memset(&npu_attr, 0, sizeof(npu_attr));

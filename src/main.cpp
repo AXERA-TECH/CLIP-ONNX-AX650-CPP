@@ -2,6 +2,7 @@
 
 #include "string_utility.hpp"
 #include "cmdline.hpp"
+#include "axcl.h"
 
 bool _file_exist(const std::string &path)
 {
@@ -133,6 +134,8 @@ int main(int argc, char *argv[])
     image_encoder_model_path = cmd.get<std::string>("ienc");
     text_encoder_model_path = cmd.get<std::string>("tenc");
     language = cmd.get<int>("language");
+
+    axclInit(0);
 
     std::shared_ptr<CLIP> mClip = std::make_shared<CLIP>();
 
@@ -277,5 +280,6 @@ int main(int argc, char *argv[])
     }
     printf("\n");
 
+    axclFinalize();
     return 0;
 }

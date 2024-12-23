@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <thread>
+#include <memory>
 
 #include "sample_log.h"
 #include "Tokenizer.hpp"
