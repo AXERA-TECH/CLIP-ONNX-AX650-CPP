@@ -21,82 +21,101 @@ protected:
     std::shared_ptr<CLIPTextEncoder> m_text_encoder;
     std::shared_ptr<CLIPImageEncoder> m_image_encoder;
 
-    static void softmax(const std::vector<std::vector<float>> &input, std::vector<std::vector<float>> &result)
+    static void softmax(const std::vector<std::vector<float>> &input, std::vector<std::vector<float>> &output)
     {
-        result.reserve(input.size());
+        output.clear();
+        output.reserve(input.size());
 
         for (const auto &row : input)
         {
-            std::vector<float> rowResult;
-            rowResult.reserve(row.size());
-
             float maxVal = *std::max_element(row.begin(), row.end());
-
-            float sumExp = 0.0;
+            std::vector<float> expRow;
+            float sum = 0.0f;
             for (float val : row)
             {
-                float expVal = std::exp(val - maxVal);
-                rowResult.emplace_back(expVal);
-                sumExp += expVal;
+                float e = std::exp(val - maxVal); // 防止溢出
+                expRow.push_back(e);
+                sum += e;
             }
 
-            for (float &val : rowResult)
-            {
-                val /= sumExp;
-            }
+            for (float &val : expRow)
+                val /= sum;
 
-            result.emplace_back(std::move(rowResult));
+            output.push_back(std::move(expRow));
         }
     }
 
     static void postprocess(
-        const std::vector<std::vector<float>> &imageFeatures, const std::vector<std::vector<float>> &textFeatures,
-        std::vector<std::vector<float>> &logits_per_image, std::vector<std::vector<float>> &logits_per_text)
+        const std::vector<std::vector<float>> &imageFeatures,
+        const std::vector<std::vector<float>> &textFeatures,
+        std::vector<std::vector<float>> &logits_per_image,
+        std::vector<std::vector<float>> &logits_per_text)
     {
-        std::vector<std::vector<float>> logitsPerImage;
-        logitsPerImage.reserve(imageFeatures.size());
+        const float logit_scale = 100.0f;
 
-        for (const auto &_row : imageFeatures)
+        // Step 1: Normalize image features
+        std::vector<std::vector<float>> imageNormed;
+        imageNormed.reserve(imageFeatures.size());
+        for (const auto &img : imageFeatures)
         {
-            float norm = 0.0;
-            for (float val : _row)
-            {
-                norm += val * val;
-            }
+            float norm = 0.0f;
+            for (float v : img)
+                norm += v * v;
             norm = std::sqrt(norm);
-            std::vector<float> normRow;
-            normRow.reserve(_row.size());
-            for (float val : _row)
-            {
-                normRow.push_back(val / norm);
-            }
 
+            std::vector<float> normVec;
+            normVec.reserve(img.size());
+            for (float v : img)
+                normVec.push_back(v / norm);
+
+            imageNormed.push_back(std::move(normVec));
+        }
+
+        // Step 2: Normalize text features
+        std::vector<std::vector<float>> textNormed;
+        textNormed.reserve(textFeatures.size());
+        for (const auto &txt : textFeatures)
+        {
+            float norm = 0.0f;
+            for (float v : txt)
+                norm += v * v;
+            norm = std::sqrt(norm);
+
+            std::vector<float> normVec;
+            normVec.reserve(txt.size());
+            for (float v : txt)
+                normVec.push_back(v / norm);
+
+            textNormed.push_back(std::move(normVec));
+        }
+
+        // Step 3: Compute logits_per_image = image @ text^T
+        std::vector<std::vector<float>> logitsPerImage;
+        logitsPerImage.reserve(imageNormed.size());
+
+        for (const auto &imgVec : imageNormed)
+        {
             std::vector<float> row;
-            row.reserve(textFeatures.size());
-            for (const auto &textRow : textFeatures)
+            row.reserve(textNormed.size());
+            for (const auto &txtVec : textNormed)
             {
-                float sum = 0.0;
-                for (size_t i = 0; i < normRow.size(); i++)
-                {
-                    sum += normRow[i] * textRow[i];
-                }
-                row.push_back(100 * sum);
+                float dot = 0.0f;
+                for (size_t i = 0; i < imgVec.size(); ++i)
+                    dot += imgVec[i] * txtVec[i];
+                row.push_back(logit_scale * dot);
             }
             logitsPerImage.push_back(std::move(row));
         }
 
-        std::vector<std::vector<float>> logitsPerText(logitsPerImage[0].size(), std::vector<float>(logitsPerImage.size()));
-
-        for (size_t i = 0; i < logitsPerImage.size(); i++)
-        {
-            for (size_t j = 0; j < logitsPerImage[i].size(); j++)
-            {
+        // Step 4: Transpose logitsPerImage to get logitsPerText
+        std::vector<std::vector<float>> logitsPerText(textNormed.size(), std::vector<float>(imageNormed.size()));
+        for (size_t i = 0; i < logitsPerImage.size(); ++i)
+            for (size_t j = 0; j < logitsPerImage[i].size(); ++j)
                 logitsPerText[j][i] = logitsPerImage[i][j];
-            }
-        }
 
-        softmax(logitsPerImage, logits_per_image);
-        softmax(logitsPerText, logits_per_text);
+        // Step 5: Apply softmax
+        softmax(logitsPerImage, logits_per_image); // shape (N_img, N_txt)
+        softmax(logitsPerText, logits_per_text);   // shape (N_txt, N_img)
     }
 
 public:
