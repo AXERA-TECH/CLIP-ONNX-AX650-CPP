@@ -27,16 +27,6 @@ add_compile_options(-std=c++17)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# link third-party library onnxruntime-win-x64-1.14.1 and opencv4
-if(NOT ONNXRUNTIME_DIR)
-    set(ONNXRUNTIME_DIR ${CMAKE_SOURCE_DIR}/third_party/onnxruntime-aarch64-none-gnu-1.16.0)
-endif()
-
-message(STATUS "ONNXRUNTIME_DIR Path: ${ONNXRUNTIME_DIR}")
-
-include_directories(${ONNXRUNTIME_DIR}/include)
-link_directories("${ONNXRUNTIME_DIR}/lib")
-set(ONNXRUNTIME_LIB onnxruntime)
 
 if(NOT OpenCV_DIR)
     set(OpenCV_DIR ${CMAKE_SOURCE_DIR}/third_party/libopencv-4.6-aarch64-none/lib/cmake/opencv4)
@@ -46,15 +36,10 @@ message(STATUS "OPENCV_DIR Path: ${OpenCV_DIR}")
 find_package(OpenCV REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
-# include_directories(${BSP_MSP_DIR}/include)
-# link_directories(${BSP_MSP_DIR}/lib)
-# include_directories(axcl/include)
-# link_directories(axcl/lib)
 include_directories(/usr/include/axcl)
 link_directories(/usr/lib/axcl)
 
 add_library(clip STATIC
-    src/Runner/BaseRunner.cpp
     src/Runner/ax_model_runner_ax650.cpp
     src/Runner/memory_utils.cpp
 )
@@ -66,8 +51,6 @@ target_link_libraries(main clip)
 
 target_link_libraries(main ${OpenCV_LIBS} gomp)
 
-
-target_link_libraries(main ${ONNXRUNTIME_LIB})
 target_link_libraries(main spdlog axcl_pcie_dma axcl_pcie_msg axcl_token axcl_comm axcl_pkg axcl_rt)
 
 

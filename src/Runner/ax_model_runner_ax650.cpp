@@ -346,11 +346,12 @@ int ax_runner_ax650::sub_init()
         moutput_tensors = mgroup_output_tensors[0];
         minput_tensors = mgroup_input_tensors[0];
         _parepare_io = true;
+        print_io_info(minput_tensors, moutput_tensors);
     }
     else
     {
     }
-    // print_io_info(minput_tensors, mtensors);
+    
 
     return ret;
 }

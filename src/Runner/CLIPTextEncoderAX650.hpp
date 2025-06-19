@@ -44,14 +44,14 @@ public:
                 return false;
             }
 
-            if (_isCN)
-            {
-                fill_ids((int64_t *)m_encoder->get_input(0).pVirAddr, text_token.size(), text_token);
-            }
-            else
-            {
-                fill_ids((int32_t *)m_encoder->get_input(0).pVirAddr, text_token.size(), text_token);
-            }
+            // if (_isCN)
+            // {
+            //     fill_ids((int64_t *)m_encoder->get_input(0).pVirAddr, text_token.size(), text_token);
+            // }
+            // else
+            // {
+            fill_ids((int32_t *)m_encoder->get_input(0).pVirAddr, text_token.size(), text_token);
+            // }
             m_encoder->inference();
             text_features[i].resize(LEN_TEXT_FEATURE);
             // m_encoder->mem_sync_output(0);

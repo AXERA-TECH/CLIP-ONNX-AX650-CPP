@@ -243,18 +243,18 @@ int main(int argc, char *argv[])
     if (texts.size() > 1)
     {
         printf("per image:\n");
-        printf("%32s|", "image path\\text");
+        printf("%40s|", "image path\\text");
         for (size_t i = 0; i < texts.size(); i++)
         {
-            printf("%32s|", texts[i].c_str());
+            printf("%40s|", texts[i].c_str());
         }
         printf("\n");
         for (size_t i = 0; i < logits_per_image.size(); i++)
         {
-            printf("%32s|", image_paths[i].c_str());
+            printf("%40s|", image_paths[i].c_str());
             for (size_t j = 0; j < logits_per_image[i].size(); j++)
             {
-                printf("%32.2f|", logits_per_image[i][j]);
+                printf("%40.2f|", logits_per_image[i][j]);
             }
             printf("\n");
         }
@@ -263,18 +263,18 @@ int main(int argc, char *argv[])
 
     printf("\n");
     printf("per text:\n");
-    printf("%32s|", "text\\image path");
+    printf("%40s|", "text\\image path");
     for (size_t i = 0; i < image_paths.size(); i++)
     {
-        printf("%32s|", image_paths[i].c_str());
+        printf("%40s|", image_paths[i].c_str());
     }
     printf("\n");
     for (size_t i = 0; i < logits_per_text.size(); i++)
     {
-        printf("%32s|", texts[i].c_str());
+        printf("%40s|", texts[i].c_str());
         for (size_t j = 0; j < logits_per_text[i].size(); j++)
         {
-            printf("%32.2f|", logits_per_text[i][j]);
+            printf("%40.2f|", logits_per_text[i][j]);
         }
         printf("\n");
     }
