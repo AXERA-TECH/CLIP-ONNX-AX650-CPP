@@ -10,13 +10,6 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build" FORCE)
 endif()
 
-# bsp
-# if(NOT BSP_MSP_DIR)
-#     set(BSP_MSP_DIR ${CMAKE_SOURCE_DIR}/axpi_pro_bsp_sdk/msp/out)
-# endif()
-
-# message(STATUS "BSP_MSP_DIR = ${BSP_MSP_DIR}")
-
 # set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/toolchains/aarch64-none-linux-gnu.toolchain.cmake)
 cmake_minimum_required(VERSION 3.0)
 project(CLIP-ONNX-AX650-CPP)
@@ -35,9 +28,15 @@ endif()
 message(STATUS "OPENCV_DIR Path: ${OpenCV_DIR}")
 find_package(OpenCV REQUIRED)
 
+# bsp
+if(NOT BSP_MSP_DIR)
+    set(BSP_MSP_DIR ${CMAKE_SOURCE_DIR}/axpi_pro_bsp_sdk/msp/out)
+endif()
+message(STATUS "BSP_MSP_DIR = ${BSP_MSP_DIR}")
+
 include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(/usr/include/axcl)
-link_directories(/usr/lib/axcl)
+include_directories(${BSP_MSP_DIR}/include)
+link_directories(${BSP_MSP_DIR}/lib)
 
 add_library(clip STATIC
     src/Runner/ax_model_runner_ax650.cpp
@@ -51,7 +50,7 @@ target_link_libraries(main clip)
 
 target_link_libraries(main ${OpenCV_LIBS} gomp)
 
-target_link_libraries(main spdlog axcl_pcie_dma axcl_pcie_msg axcl_token axcl_comm axcl_pkg axcl_rt)
+target_link_libraries(main ax_engine ax_interpreter ax_sys)
 
 
 install(TARGETS main DESTINATION bin)

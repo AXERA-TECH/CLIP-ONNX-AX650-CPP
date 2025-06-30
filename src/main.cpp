@@ -2,7 +2,8 @@
 
 #include "string_utility.hpp"
 #include "cmdline.hpp"
-#include "axcl.h"
+#include <ax_sys_api.h>
+#include <ax_engine_api.h>
 
 bool _file_exist(const std::string &path)
 {
@@ -135,7 +136,15 @@ int main(int argc, char *argv[])
     text_encoder_model_path = cmd.get<std::string>("tenc");
     language = cmd.get<int>("language");
 
-    axclInit(0);
+    AX_ENGINE_NPU_ATTR_T npu_attr;
+    memset(&npu_attr, 0, sizeof(npu_attr));
+    npu_attr.eHardMode = AX_ENGINE_VIRTUAL_NPU_DISABLE;
+    AX_SYS_Init();
+    auto ret = AX_ENGINE_Init(&npu_attr);
+    if (0 != ret)
+    {
+        return ret;
+    }
 
     std::shared_ptr<CLIP> mClip = std::make_shared<CLIP>();
 
@@ -280,6 +289,7 @@ int main(int argc, char *argv[])
     }
     printf("\n");
 
-    axclFinalize();
+    AX_ENGINE_Deinit();
+    AX_SYS_Deinit();
     return 0;
 }

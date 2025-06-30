@@ -6,7 +6,7 @@ https://github.com/AXERA-TECH/CLIP-ONNX-AX650-CPP/assets/46700201/7fefc9dd-9168-
 ```
 mkdir build
 cd build
-cmake -DOpenCV_DIR=${opencv_cmake_file_dir} ..
+cmake -DCMAKE_TOOLCHAIN_FILE=../toolchains/aarch64-none-linux-gnu.toolchain.cmake -DOpenCV_DIR=${opencv_cmake_file_dir} -DBSP_MSP_DIR=/path/to/msp/out/ ..
 make -j4
 ```
 aarch64-none-gnu library:\
@@ -18,52 +18,32 @@ aarch64-none-gnu library:\
 [clip](https://hf-mirror.com/AXERA-TECH/clip)
 
 ## Run with axcl 
-```
-./main --ienc cnclip/cnclip_vit_l14_336px_vision_u16u8.axmodel --tenc cnclip/cnclip_vit_l14_336px_text_u16.axmodel -v ../cn_vocab.txt -l 1 -i cn_clip_models/images/ -t text.txt 
-
-input size: 1
-    name:    image [unknown] [unknown] 
-        1 x 3 x 336 x 336
-
-
-output size: 1
-    name: unnorm_image_features 
-        1 x 768
-
+```shell
+# ./main --ienc cnclip/cnclip_vit_l14_336px_vision_u16u8.axmodel --tenc cnclip/cnclip_vit_l14_336px_text_u16.axmodel -i ../images/ -t text.txt -v ../cn_vocab.txt -l 1
 [I][              load_image_encoder][  18]: input size 336 336
 [I][              load_image_encoder][  22]: image feature len 768
-
-input size: 1
-    name:     text [unknown] [unknown] 
-        1 x 52
-
-
-output size: 1
-    name: unnorm_text_features 
-        1 x 768
-
 [I][               load_text_encoder][  16]: text feature len 768
 [I][                  load_tokenizer][  60]: text token len 52
-[I][                   process_texts][  70]: encode text [bird] cost time : 0.005517
-[I][                   process_texts][  70]: encode text [cat] cost time : 0.005364
-[I][                   process_texts][  70]: encode text [dog] cost time : 0.005266
-image encode cost time : 0.0956998s
-image encode cost time : 0.0952134s
-image encode cost time : 0.0940913s
-postprocess cost time : 4.2296e-05s
+[I][                   process_texts][  71]: encode text [bird] cost time : 0.004662
+[I][                   process_texts][  71]: encode text [cat] cost time : 0.004529
+[I][                   process_texts][  71]: encode text [dog] cost time : 0.004484
+image encode cost time : 0.101203s
+image encode cost time : 0.0918216s
+image encode cost time : 0.094925s
+postprocess cost time : 0.000195515s
 
 per image:
                          image path\text|                                    bird|                                     cat|                                     dog|
-          cn_clip_models/images/bird.jpg|                                    1.00|                                    0.00|                                    0.00|
-           cn_clip_models/images/cat.jpg|                                    0.00|                                    1.00|                                    0.00|
-     cn_clip_models/images/dog-chai.jpeg|                                    0.00|                                    0.00|                                    1.00|
+                      ../images/bird.jpg|                                    1.00|                                    0.00|                                    0.00|
+                       ../images/cat.jpg|                                    0.00|                                    1.00|                                    0.00|
+                 ../images/dog-chai.jpeg|                                    0.00|                                    0.00|                                    1.00|
 
 
 per text:
-                         text\image path|          cn_clip_models/images/bird.jpg|           cn_clip_models/images/cat.jpg|     cn_clip_models/images/dog-chai.jpeg|
+                         text\image path|                      ../images/bird.jpg|                       ../images/cat.jpg|                 ../images/dog-chai.jpeg|
                                     bird|                                    1.00|                                    0.00|                                    0.00|
                                      cat|                                    0.00|                                    1.00|                                    0.00|
-                                     dog|                                    0.00|                                    0.00|                                    1.00|
+                                     dog|                                    0.00|                                    0.01|                                    0.99|
 ```
 ## Reference
 [CLIP](https://github.com/openai/CLIP)\
